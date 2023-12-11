@@ -101,22 +101,29 @@ def solution(age):
 # 1 ≤ r1 < r2 ≤ 1,000,000
 
 import math
-
+#(피타고라스 이용)
 def solution(r1, r2):
-    # 제한사항 미충족시 -1 반환
     if not(1<=r1<r2<=1000000):
         return -1
-    
     count = 0
-    # 우측 상단에 존재하는 점을 탐색하기 위한 반복문. x와 y좌표를 통해 검색한다.
-    for x in range(0, r2+1):
-        for y in range(0, r2+1):
-            # 좌표를 통해 값을 계산한다. 
-            far = math.sqrt(x*x + y*y)
-            # 조건(r1의 반지름보다 크고, r2의 반지름보다 작으면)을 충족하면 개수 1개 추가.
-            if r1 <= far <= r2 and x != 0:
-                count += 1
+    # 0을 제외한 x부터 간다.
+    for x in range(1, r2+1):
+        # 만약 x가 r1의 반지름을 넘지 않았을 경우.
+        if(x < r1):
+            r1loc = math.ceil(math.sqrt(r1*r1 - x*x)) # x일때 높이를 구함. (올림한다.)
+        else: # x가 r1의 반지름을 넘어섰을 경우 높이를 0으로
+            r1loc = 0
 
+        # r2의 높이을 찾는다. (내림한다.)
+        r2loc = math.floor(math.sqrt(r2*r2 - x*x))
+
+        #디버그용코드
+        #print(f"X값 : {x} r1의 높이:{r1loc} r2의 높이: {r2loc}")
+        
+        # r1과 r2의 사이의 점의 갯수를 구한 후 카운트에 더한다.
+        count += r2loc - r1loc + 1
+
+    #위의 과정이 끝나면 x=0을 제외한 1사분면의 점의 갯수가 count에 저장되어있다.
     return count*4
 
 # Q.5 10점
@@ -139,22 +146,38 @@ def solution(r1, r2):
 #
 # numbers = [8, 30, 17, 2, 23]
 
-# 패키지 임포트
-from itertools import permutations
+def heap_sort(arr):
+    def heapify(arr, n, i):
+        largest = i
+        l = 2 * i + 1
+        r = 2 * i + 2
+
+        # 왼쪽 자식과 현재 노드를 비교(이때 비교 조건을 x와y를 이어붙인 값이 큰지, y와x를 이어붙인 값이 큰지 수정하였다.)
+        if l < n and arr[l] + arr[i] < arr[i] + arr[l]:
+            largest = l
+
+        # 오른쪽 자식이 현재 노드보다 큰 경우(이때 비교 조건을 x와y를 이어붙인 값이 큰지, y와x를 이어붙인 값이 큰지 수정하였다.)
+        if r < n and arr[r] + arr[largest] < arr[largest] + arr[r]:
+            largest = r
+
+        # 변경없음
+        if largest != i:
+            arr[i], arr[largest] = arr[largest], arr[i]
+            heapify(arr, n, largest)
+    ################################변경 없음.
+    n = len(arr)
+    for i in range(n, -1, -1):
+        heapify(arr, n, i)
+
+    for i in range(n-1, 0, -1):
+        arr[i], arr[0] = arr[0], arr[i]
+        heapify(arr, i, 0)
+
 
 def solution(numbers):
-    # 조건 미충족시 -1 반환
-    if not(1 < len(numbers) < 100000):
-        return -1
-    for i in numbers:
-        if i > 1000:
-            return -1
-    
-    # 입력받은 수를 문자열로 변환
-    numbers_str = []
-    for num in numbers:
-        numbers_str.append(str(num))
-    # 가능한 모든 조합을 생성한다.
-    result = [''.join(comb) for comb in permutations(numbers_str, len(numbers_str))]
-    # 결과 반환(가장 큰 수)
-    return str(max(result))
+    numbers_str = list(map(str, numbers))
+    heap_sort(numbers_str)
+    # 만약 0만 잔뜩 들어올 경우 0 하나로 리턴하도록
+    if(numbers_str[0] == '0'):
+        numbers_str = ['0']
+    return ''.join(numbers_str)

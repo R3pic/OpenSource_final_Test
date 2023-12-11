@@ -18,25 +18,63 @@
 #
 # numbers = [8, 30, 17, 2, 23]
 
-# 패키지 임포트
-from itertools import permutations
+# https://modulabs.co.kr/blog/algorithm-python/에서 힙 정렬 메소드를 가져오고 수정했다.
+
+def heap_sort(arr):
+    def heapify(arr, n, i):
+        largest = i
+        l = 2 * i + 1
+        r = 2 * i + 2
+
+        # 왼쪽 자식과 현재 노드를 비교(이때 비교 조건을 x와y를 이어붙인 값이 큰지, y와x를 이어붙인 값이 큰지 수정하였다.)
+        if l < n and arr[l] + arr[i] < arr[i] + arr[l]:
+            largest = l
+
+        # 오른쪽 자식이 현재 노드보다 큰 경우(이때 비교 조건을 x와y를 이어붙인 값이 큰지, y와x를 이어붙인 값이 큰지 수정하였다.)
+        if r < n and arr[r] + arr[largest] < arr[largest] + arr[r]:
+            largest = r
+
+        # 변경없음
+        if largest != i:
+            arr[i], arr[largest] = arr[largest], arr[i]
+            heapify(arr, n, largest)
+    ################################변경 없음.
+    n = len(arr)
+    for i in range(n, -1, -1):
+        heapify(arr, n, i)
+
+    for i in range(n-1, 0, -1):
+        arr[i], arr[0] = arr[0], arr[i]
+        heapify(arr, i, 0)
+
 
 def solution(numbers):
-    # 조건 미충족시 -1 반환
-    if not(1 < len(numbers) < 100000):
-        return -1
-    for i in numbers:
-        if i > 1000:
-            return -1
-    
-    # 입력받은 수를 문자열로 변환
-    numbers_str = []
-    for num in numbers:
-        numbers_str.append(str(num))
-    # 가능한 모든 조합을 생성한다.
-    result = [''.join(comb) for comb in permutations(numbers_str, len(numbers_str))]
-    # 결과 반환(가장 큰 수)
-    return str(max(result))
+    numbers_str = list(map(str, numbers))
+    heap_sort(numbers_str)
+    # 만약 0만 잔뜩 들어올 경우 0 하나로 리턴하도록
+    if(numbers_str[0] == '0'):
+        numbers_str = ['0']
+    return ''.join(numbers_str)
+
+# # 수정전
+# from itertools import permutations
+
+
+# def solution(numbers):
+#     # 조건 미충족시 -1 반환
+#     if not(1 < len(numbers) < 100000):
+#         return -1
+#     for i in numbers:
+#         if i > 1000:
+#             return -1
+#     result = []
+#     # 입력받은 수를 문자열로 변환
+#     numbers_str = list(map(str, numbers))
+#     # 가능한 모든 조합을 생성한다.
+#     result = [''.join(comb) for comb in permutations(numbers_str, len(numbers_str))]
+#     # 결과 반환(가장 큰 수), 이때 0000과 같이 0만 이어져있다면 하나의 0으로 만들기 위해 int 후 str.
+#     answer = int(max(result))
+#     return str(answer)
 
 #테스트코드
 print(solution([8, 30, 17, 2, 23]))
